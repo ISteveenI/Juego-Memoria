@@ -1,35 +1,45 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./globals.css";
 
 const COLORS = ["red", "blue", "green", "yellow"];
 
-const sounds = {
+const sounds = typeof window !== "undefined" ? {
   start: new Audio("/sounds/start.mp3"),
   click: new Audio("/sounds/click.mp3"),
   error: new Audio("/sounds/error.mp3"),
   restart: new Audio("/sounds/restart.mp3"),
   pause: new Audio("/sounds/pause.mp3"),
-};
+} : {};
 
 export default function App() {
   const [sequence, setSequence] = useState([]);
   const [playerSeq, setPlayerSeq] = useState([]);
   const [score, setScore] = useState(0);
-  const [record, setRecord] = useState(
-    Number(localStorage.getItem("record")) || 0
-  );
+  const [record, setRecord] = useState(0);
+  const [recordHolder, setRecordHolder] = useState("");
   const [isNewRecord, setIsNewRecord] = useState(false);
+  const [showNameInput, setShowNameInput] = useState(false);
+  const [playerName, setPlayerName] = useState("");
   const [state, setState] = useState("start");
-  // start | showing | playing | paused | gameover
   const [active, setActive] = useState(null);
 
   const pausedRef = useRef(false);
 
+  // Cargar récord y nombre del localStorage al iniciar
+  useEffect(() => {
+    const savedRecord = Number(localStorage.getItem("record")) || 0;
+    const savedName = localStorage.getItem("recordHolder") || "";
+    setRecord(savedRecord);
+    setRecordHolder(savedName);
+  }, []);
+
   const playSound = (name) => {
-    sounds[name].currentTime = 0;
-    sounds[name].play();
+    if (sounds[name]) {
+      sounds[name].currentTime = 0;
+      sounds[name].play();
+    }
   };
 
   const startGame = () => {
@@ -38,6 +48,7 @@ export default function App() {
     setPlayerSeq([]);
     setScore(0);
     setIsNewRecord(false);
+    setShowNameInput(false);
     nextRound([]);
   };
 
@@ -103,10 +114,18 @@ export default function App() {
     setState("gameover");
 
     if (score > record) {
-      setRecord(score);
       setIsNewRecord(true);
-      localStorage.setItem("record", score);
+      setShowNameInput(true);
     }
+  };
+
+  const saveRecord = () => {
+    const name = playerName.trim() || "Anónimo";
+    setRecord(score);
+    setRecordHolder(name);
+    localStorage.setItem("record", score);
+    localStorage.setItem("recordHolder", name);
+    setShowNameInput(false);
   };
 
   const restart = () => {
@@ -116,6 +135,8 @@ export default function App() {
     setPlayerSeq([]);
     setScore(0);
     setIsNewRecord(false);
+    setShowNameInput(false);
+    setPlayerName("");
   };
 
   return (
@@ -132,8 +153,34 @@ export default function App() {
       {state === "gameover" && (
         <>
           <h2 className="gameover">GAME OVER</h2>
-          {isNewRecord && <p className="new-record"> ¡Nuevo récord!</p>}
-          <p>Récord: {record}</p>
+          {isNewRecord && <p className="new-record">🎉 ¡Nuevo récord!</p>}
+          
+          {showNameInput ? (
+            <div className="name-input-container">
+              <p>¡Felicidades! Ingresa tu nombre:</p>
+              <input
+                type="text"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                placeholder="Tu nombre"
+                maxLength={20}
+                className="name-input"
+                autoFocus
+              />
+              <button onClick={saveRecord} className="save-button">
+                Guardar Récord
+              </button>
+            </div>
+          ) : (
+            <div className="record-container">
+              <h3 className="record-title">RÉCORD ACTUAL</h3>
+              <p className="record-score">{record}</p>
+              {recordHolder && (
+                <p className="record-holder">👑 {recordHolder}</p>
+              )}
+              <p className="your-score">Tu puntaje: {score}</p>
+            </div>
+          )}
         </>
       )}
 
@@ -160,7 +207,7 @@ export default function App() {
           </button>
         )}
 
-        {state === "gameover" && (
+        {state === "gameover" && !showNameInput && (
           <button onClick={restart}>Volver</button>
         )}
       </div>

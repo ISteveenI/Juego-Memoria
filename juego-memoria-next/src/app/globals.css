@@ -1,6 +1,8 @@
 body {
   background: #0b0b0b;
   font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 .app {
@@ -11,18 +13,22 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
+  padding: 20px;
 }
 
 h1 {
   font-size: 3rem;
+  margin-bottom: 10px;
 }
 
 h2 {
   font-size: 2rem;
+  margin: 10px 0;
 }
 
 p {
   font-size: 1.3rem;
+  margin: 10px 0;
 }
 
 .board {
@@ -40,20 +46,34 @@ p {
   transition: transform 0.1s, filter 0.2s;
 }
 
-/* brillantes */
+/* Colores brillantes */
 .red { background: #ff3b3b; }
 .blue { background: #3ba3ff; }
 .green { background: #3bff8b; }
 .yellow { background: #ffe03b; }
 
-/* oscurecer durante patrón */
+/* Oscurecer durante patrón */
 .dim {
   filter: brightness(40%);
 }
 
-/* animación click jugador */
+/* Animación click jugador */
 .tile:active {
   transform: scale(0.95);
+}
+
+.tile.disabled {
+  pointer-events: none;
+  filter: brightness(60%);
+}
+
+/* Evitar animación :active cuando está deshabilitado */
+.tile.disabled:active {
+  transform: none;
+}
+
+.controls {
+  margin-top: 20px;
 }
 
 .controls button {
@@ -62,18 +82,123 @@ p {
   border-radius: 15px;
   border: none;
   cursor: pointer;
+  background: white;
+  font-weight: bold;
+  transition: transform 0.1s;
+}
+
+.controls button:hover {
+  transform: scale(1.05);
+}
+
+.controls button:active {
+  transform: scale(0.95);
 }
 
 .gameover {
   color: #ff4b4b;
-}
-.tile.disabled {
-  pointer-events: none;
-  filter: brightness(60%);
+  font-size: 3rem;
+  margin: 20px 0;
 }
 
-/* evitar animación :active cuando está deshabilitado */
-.tile.disabled:active {
-  transform: none;
+.new-record {
+  color: #ffd700;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 10px 0;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Contenedor de input de nombre */
+.name-input-container {
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.name-input {
+  font-size: 1.2rem;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 2px solid #3ba3ff;
+  text-align: center;
+  width: 250px;
+  background: #1a1a1a;
+  color: white;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.name-input:focus {
+  border-color: #3bff8b;
+}
+
+.save-button {
+  font-size: 1.1rem;
+  padding: 10px 30px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background: #3bff8b;
+  color: #0b0b0b;
+  font-weight: bold;
+  transition: transform 0.1s, background 0.3s;
+}
+
+.save-button:hover {
+  background: #2ee076;
+  transform: scale(1.05);
+}
+
+.save-button:active {
+  transform: scale(0.95);
+}
+
+/* Contenedor del récord */
+.record-container {
+  margin: 30px 0;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  min-width: 300px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.record-title {
+  font-size: 1.5rem;
+  color: #ffd700;
+  margin: 10px 0;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+.record-score {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #3bff8b;
+  margin: 15px 0;
+  text-shadow: 0 0 20px rgba(59, 255, 139, 0.5);
+}
+
+.record-holder {
+  font-size: 1.8rem;
+  color: #ffd700;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+.your-score {
+  font-size: 1.2rem;
+  color: #999;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
