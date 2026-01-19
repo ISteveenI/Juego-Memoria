@@ -13,27 +13,108 @@ const sounds = typeof window !== "undefined" ? {
   pause: new Audio("/sounds/pause.mp3"),
 } : {};
 
+// Configuración de la API
+const API_KEY = "$2a$10$MlzmsmYqAXXSO3PhpBd8tOW/UK.afNRWagjYYXvtBIfpLB1MpyWSW";
+const BIN_ID = "696e947643b1c97be93b7595";
+const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
 export default function App() {
   const [sequence, setSequence] = useState([]);
   const [playerSeq, setPlayerSeq] = useState([]);
   const [score, setScore] = useState(0);
   const [record, setRecord] = useState(0);
   const [recordHolder, setRecordHolder] = useState("");
+  const [globalRankings, setGlobalRankings] = useState([]);
   const [isNewRecord, setIsNewRecord] = useState(false);
   const [showNameInput, setShowNameInput] = useState(false);
   const [playerName, setPlayerName] = useState("");
   const [state, setState] = useState("start");
   const [active, setActive] = useState(null);
+  const [loadingRankings, setLoadingRankings] = useState(false);
+  const [showGlobalRankings, setShowGlobalRankings] = useState(false);
 
   const pausedRef = useRef(false);
 
-  // Cargar récord y nombre del localStorage al iniciar
+  // Cargar récord local y rankings globales al iniciar
   useEffect(() => {
     const savedRecord = Number(localStorage.getItem("record")) || 0;
     const savedName = localStorage.getItem("recordHolder") || "";
     setRecord(savedRecord);
     setRecordHolder(savedName);
+    
+    // Cargar rankings globales
+    fetchGlobalRankings();
   }, []);
+
+  // Obtener rankings globales desde la API
+  const fetchGlobalRankings = async () => {
+    setLoadingRankings(true);
+    try {
+      const response = await fetch(API_URL + "/latest", {
+        method: "GET",
+        headers: {
+          "X-Master-Key": API_KEY,
+        },
+      });
+      
+      const data = await response.json();
+      const rankings = data.record.rankings || [];
+      
+      // Ordenar por puntaje descendente y tomar top 10
+      const sortedRankings = rankings
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
+      
+      setGlobalRankings(sortedRankings);
+    } catch (error) {
+      console.error("Error al obtener rankings:", error);
+      setGlobalRankings([]);
+    } finally {
+      setLoadingRankings(false);
+    }
+  };
+
+  // Enviar puntaje a la API
+  const sendScoreToAPI = async (name, score) => {
+    try {
+      // Primero obtener los rankings actuales
+      const getResponse = await fetch(API_URL + "/latest", {
+        method: "GET",
+        headers: {
+          "X-Master-Key": API_KEY,
+        },
+      });
+      
+      const currentData = await getResponse.json();
+      const currentRankings = currentData.record.rankings || [];
+      
+      // Agregar el nuevo puntaje
+      const newEntry = {
+        name: name,
+        score: score,
+        date: new Date().toISOString(),
+      };
+      
+      const updatedRankings = [...currentRankings, newEntry];
+      
+      // Actualizar la base de datos
+      await fetch(API_URL, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": API_KEY,
+        },
+        body: JSON.stringify({
+          rankings: updatedRankings,
+        }),
+      });
+      
+      // Recargar rankings
+      await fetchGlobalRankings();
+    } catch (error) {
+      console.error("Error al enviar puntaje:", error);
+    }
+  };
 
   const playSound = (name) => {
     if (sounds[name]) {
@@ -49,6 +130,7 @@ export default function App() {
     setScore(0);
     setIsNewRecord(false);
     setShowNameInput(false);
+    setShowGlobalRankings(false);
     nextRound([]);
   };
 
@@ -119,12 +201,16 @@ export default function App() {
     }
   };
 
-  const saveRecord = () => {
+  const saveRecord = async () => {
     const name = playerName.trim() || "Anónimo";
     setRecord(score);
     setRecordHolder(name);
     localStorage.setItem("record", score);
     localStorage.setItem("recordHolder", name);
+    
+    // Enviar puntaje a la API global
+    await sendScoreToAPI(name, score);
+    
     setShowNameInput(false);
   };
 
@@ -137,6 +223,14 @@ export default function App() {
     setIsNewRecord(false);
     setShowNameInput(false);
     setPlayerName("");
+    setShowGlobalRankings(false);
+  };
+
+  const toggleGlobalRankings = () => {
+    setShowGlobalRankings(!showGlobalRankings);
+    if (!showGlobalRankings) {
+      fetchGlobalRankings();
+    }
   };
 
   return (
@@ -173,12 +267,12 @@ export default function App() {
             </div>
           ) : (
             <div className="record-container">
-              <h3 className="record-title">RÉCORD ACTUAL</h3>
+              <h3 className="record-title">TU RÉCORD PERSONAL</h3>
               <p className="record-score">{record}</p>
               {recordHolder && (
                 <p className="record-holder">👑 {recordHolder}</p>
               )}
-              <p className="your-score">Tu puntaje: {score}</p>
+              <p className="your-score">Puntaje actual: {score}</p>
             </div>
           )}
         </>
@@ -198,7 +292,12 @@ export default function App() {
 
       <div className="controls">
         {state === "start" && (
-          <button onClick={startGame}>Iniciar Juego</button>
+          <>
+            <button onClick={startGame}>Iniciar Juego</button>
+            <button onClick={toggleGlobalRankings} className="rankings-btn">
+              {showGlobalRankings ? "Ocultar Rankings" : "🏆 Rankings Globales"}
+            </button>
+          </>
         )}
 
         {(state === "playing" || state === "showing" || state === "paused") && (
@@ -208,9 +307,39 @@ export default function App() {
         )}
 
         {state === "gameover" && !showNameInput && (
-          <button onClick={restart}>Volver</button>
+          <>
+            <button onClick={restart}>Volver</button>
+            <button onClick={toggleGlobalRankings} className="rankings-btn">
+              {showGlobalRankings ? "Ocultar Rankings" : "🏆 Rankings Globales"}
+            </button>
+          </>
         )}
       </div>
+
+      {/* Rankings Globales */}
+      {showGlobalRankings && (
+        <div className="global-rankings">
+          <h3>🌍 RANKINGS GLOBALES</h3>
+          {loadingRankings ? (
+            <p className="loading">Cargando rankings...</p>
+          ) : globalRankings.length > 0 ? (
+            <div className="rankings-list">
+              {globalRankings.map((entry, index) => (
+                <div key={index} className="ranking-item">
+                  <span className="rank">#{index + 1}</span>
+                  <span className="rank-name">{entry.name}</span>
+                  <span className="rank-score">{entry.score}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="no-rankings">¡Sé el primero en el ranking!</p>
+          )}
+          <button onClick={fetchGlobalRankings} className="refresh-btn">
+            🔄 Actualizar
+          </button>
+        </div>
+      )}
     </div>
   );
 }

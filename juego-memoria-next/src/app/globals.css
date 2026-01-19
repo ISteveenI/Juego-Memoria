@@ -74,6 +74,10 @@ p {
 
 .controls {
   margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .controls button {
@@ -200,5 +204,111 @@ p {
   margin-top: 20px;
   padding-top: 15px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Botón de rankings */
+.rankings-btn {
+  font-size: 1.1rem;
+  padding: 12px 24px;
+  border-radius: 15px;
+  border: none;
+  cursor: pointer;
+  background: #ffd700;
+  color: #0b0b0b;
+  font-weight: bold;
+  transition: transform 0.1s;
+}
+
+.rankings-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Rankings Globales */
+.global-rankings {
+  margin-top: 30px;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  min-width: 400px;
+  max-width: 500px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.global-rankings h3 {
+  color: #ffd700;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+
+.loading {
+  color: #999;
+  font-style: italic;
+}
+
+.rankings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.ranking-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  transition: transform 0.2s;
+}
+
+.ranking-item:hover {
+  transform: translateX(5px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.rank {
+  font-weight: bold;
+  color: #ffd700;
+  min-width: 40px;
+}
+
+.rank-name {
+  flex: 1;
+  text-align: left;
+  margin: 0 15px;
+  color: white;
+}
+
+.rank-score {
+  font-weight: bold;
+  color: #3bff8b;
+  min-width: 50px;
+  text-align: right;
+  font-size: 1.2rem;
+}
+
+.no-rankings {
+  color: #999;
+  font-style: italic;
+  margin: 20px 0;
+}
+
+.refresh-btn {
+  margin-top: 15px;
+  font-size: 1rem;
+  padding: 8px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: #3ba3ff;
+  color: white;
+  font-weight: bold;
+  transition: transform 0.1s;
+}
+
+.refresh-btn:hover {
+  transform: scale(1.05);
 }
 
