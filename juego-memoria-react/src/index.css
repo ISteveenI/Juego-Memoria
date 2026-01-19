@@ -1,0 +1,120 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #121212;
+  color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+#app {
+  text-align: center;
+  width: 90%;
+  max-width: 420px;
+}
+
+/* ---------- TEXTO ---------- */
+
+h1 {
+  margin-bottom: 10px;
+}
+
+#score {
+  margin: 10px 0;
+  font-size: 1.2rem;
+}
+
+#message {
+  margin-top: 15px;
+  min-height: 24px;
+}
+
+/* ---------- TABLERO (CSS GRID) ---------- */
+
+.tablero {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin: 20px auto;
+}
+
+/* ---------- BOTONES DE COLOR ---------- */
+
+.boton {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 15px;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.boton.activo {
+  opacity: 0.5;
+  transform: scale(1.1);
+}
+
+.rojo {
+  background: #e74c3c;
+}
+
+.azul {
+  background: #3498db;
+}
+
+.verde {
+  background: #2ecc71;
+}
+
+.amarillo {
+  background: #f1c40f;
+}
+
+/* ---------- CONTROLES ---------- */
+
+#controls {
+  margin-top: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+#start-btn {
+  background: #ffffff;
+  color: #121212;
+}
+
+#pause-btn {
+  background: #f39c12;
+  color: #121212;
+  margin-left: 10px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 600px) {
+  .tablero {
+    gap: 10px;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  #pause-btn {
+    margin-left: 0;
+  }
+}
+
